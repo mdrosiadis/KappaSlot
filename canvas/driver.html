@@ -1,0 +1,104 @@
+<html>
+    <head>
+        <title>Test</title>
+        <script src="Canvas.js"></script>
+        <script src="Renderable.js"></script>
+        <script src="Animation.js"></script>
+    </head>
+    <body>
+        <canvas id="test-canvas" width= "400px" height="400px" style="background: lightgrey"></canvas>
+        <div>
+            <button id = "runframe" onclick= "canvasObj.render()">Render Frame</button>
+            <button id = "run" onclick= "startLoop()" >Loop</button>
+            <button id = "cancel" disabled onclick = "stopLoop()">Stop</button>
+        </div>
+        <div id="animations"></div>
+    </body>
+    <script>
+        var cnv = document.getElementById("test-canvas");
+        
+        var canvasObj = new Canvas(cnv);
+
+        let b = {
+                render: (ctx) => {
+                    ctx.save();
+                    ctx.globalAlpha = 0.2;
+                    ctx.fillStyle = "#ff0000";
+                    ctx.fillRect(Math.floor(400 * 0.25), 
+                                 Math.floor(400 * 0.25),
+                                 Math.floor(400 * 0.50),
+                                 Math.floor(400 * 0.50));
+
+                    ctx.restore();
+                }
+        };
+        
+        let ren = new Renderable();
+
+        let an = new Animation("rot", ren, (target) => {
+            target.rotation += 0.05;
+            target.rotation %= 2 * Math.PI
+        });
+
+        let an2 = new Animation("col", ren, (target) => {
+            target.hue += 0.5;
+            target.hue %= 360;
+        });
+        
+        canvasObj.pushRenderable(ren);
+        //canvasObj.pushRenderable(b);
+        canvasObj.pushAnimation(new AnimationGroup("Box Group", an, an2));
+
+        var interupt;
+        var running = false;
+
+        const RB  = document.getElementById("run");
+        const SB  = document.getElementById("cancel");
+        const RFB = document.getElementById("runframe");
+
+
+        const toggleRunning = () => {
+            running = !running; 
+            SB.disabled  = !running; 
+            RB.disabled  =  running;
+            RFB.disabled =  running;
+        };
+        
+        const loop = () => {canvasObj.render();interupt = requestAnimationFrame(loop);}
+        const startLoop = () => {toggleRunning(); window.requestAnimationFrame(loop)};
+        const stopLoop =  () => {toggleRunning(); window.cancelAnimationFrame(interupt);};
+    </script>
+    <script>
+        const animationsDiv = document.getElementById("animations");
+
+        const groupList = document.createElement('ul');
+
+        for(anGroup of canvasObj.animations){
+            let listElem = document.createElement('li');
+            let aa = document.createElement('button');
+            aa.innerText = "Animation Group: " + anGroup.name;
+            aa.addEventListener('click', anGroup.toggle.bind(anGroup));
+
+            listElem.append(aa);
+
+            let div = document.createElement('ul');
+            for(anim of anGroup.animations){
+                let li = document.createElement('li');
+                let a = document.createElement('button');
+
+                a.innerText = "Animation: " + anim.name;
+
+                a.addEventListener('click', anim.toggle.bind(anim));
+            
+                li.append(a);
+
+                div.append(li);
+            }
+            listElem.append(div);
+            groupList.append(listElem);
+        }
+
+        animationsDiv.append(groupList);
+
+    </script>
+</html>

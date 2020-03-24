@@ -1,0 +1,17 @@
+.slot{
+    width: 80%;
+    margin: auto;
+}
+
+.money-bar{
+    background: rgba(155, 155, 155, 100);
+    border: chocolate;
+    border-style: ridge;
+    border-radius: 0.5rem;
+}
+
+.money-bar label{
+    color: bisque;
+    font-size: 25;
+    font-weight: 200;
+}
